@@ -1,25 +1,37 @@
-from multiprocessing import Pool
-import threading
+import random
 import time
+from multiprocessing import Pool
+
+from utils import NPROCESSES, PROOF, TARGET, calculate_hash
 
 
-def f(t0, array):
-    t_offset = time.time() - t0
-    dt = array[1, 0] - array[0, 0]
+def f(identify, t0, data):
+    hash = calculate_hash(data)
+
+    print("identify: {} t0: {} hash: {}".format(identify, t0, hash))
+
+
     while True:
-        t = time.perf_counter_ns() - t_offset*1E9
-        i = int(t/dt)
-        if i >= len(array):
+        if hash[:PROOF] == TARGET:
             break
-        array[i, 1] += 1
-    return array
+
+        hash = calculate_hash(hash)
 
 
-for i in range(nprocesses):
-    inarrays.append(np.copy(array))
+    dt = time.perf_counter_ns() - t0
+    print("identify: {} dt: {:.5f} hash: {}".format(identify, (dt*1E-9), hash))
 
 
-p = Pool(processes=nthreads)
-t0 = time.time()
-outarrays = p.starmap(f, [(t0, array)
-                        for array in inarrays], chunksize=1)
+    return hash
+
+
+if __name__ == "__main__":
+    inarrays = []
+    for i in range(NPROCESSES):
+        inarrays.append([i, random.getrandbits(128)])
+
+
+    p = Pool(processes=NPROCESSES, initializer=None, initargs=None, maxtasksperchild=None)
+    t0 = time.perf_counter_ns()
+    outarrays = p.starmap(f, [(data[0], t0, data[1])
+                            for data in inarrays], chunksize=1)

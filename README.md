@@ -1,1 +1,1 @@
-https://www.youtube.com/watch?v=AZnGRKFUU0c
+Estudo sobre Prova de Trabalho implementado em Threads e Multiprocessing

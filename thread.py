@@ -1,24 +1,37 @@
+import random
 import threading
 import time
 
+from utils import calculate_hash, PROOF, TARGET, NTHREADS
 
-def f(t0, array):
-    dt = array[1, 0] - array[0, 0]
+
+def f(identify, t0, data):
+    hash = calculate_hash(data)
+
+    print("identify: {} t0: {} hash: {}".format(identify, t0, hash))
+
+
     while True:
-        t = time.perf_counter_ns() - t0
-        i = int(t/dt)
-        if i >= len(array):
+        if hash[:PROOF] == TARGET:
             break
-        array[i, 1] += 1
-    # return None
-    return array
+
+        hash = calculate_hash(hash)
 
 
-t0 = time.perf_counter_ns()
-for i in range(nthreads):
-    arrays.append(np.copy(array))
-    threads.append(threading.Thread(target=f, args=(t0, arrays[-1])))
+    dt = time.perf_counter_ns() - t0
+    print("identify: {} dt: {:.5f} hash: {}".format(identify, (dt*1E-9), hash))
 
 
-for thread in threads:
-    thread.start()
+    return None
+
+
+if __name__ == "__main__":
+    threads = []
+    for i in range(NTHREADS):
+        data = random.getrandbits(128)
+        t0 = time.perf_counter_ns()
+        threads.append(threading.Thread(target=f, args=(i, t0, data)))
+
+
+    for thread in threads:
+        thread.start()
